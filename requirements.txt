@@ -1,0 +1,6 @@
+kafka-python
+pyspark
+psycopg2-binary
+faker
+python-dotenv
+boto3
