@@ -1,4 +1,8 @@
 import os
+from config import Config
+
+Config.GENERATED_DIR.mkdir(parents=True, exist_ok=True)
+Config.OLD_DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 FILES = [
 

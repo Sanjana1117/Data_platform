@@ -1,6 +1,7 @@
 import pandas as pd
+from config import Config
 
-OUTPUT = "data/generated/categories.csv"
+OUTPUT = Config.CATEGORIES_FILE
 
 categories = [
     ("Electronics", "Electronics", 18),

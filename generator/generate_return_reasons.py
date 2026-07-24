@@ -1,6 +1,7 @@
 import pandas as pd
+from config import Config
 
-OUTPUT = "data/generated/return_reasons.csv"
+OUTPUT = Config.RETURN_REASONS_FILE
 
 reasons = [
 

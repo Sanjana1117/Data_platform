@@ -5,14 +5,11 @@ from config import Config
 
 random.seed(Config.RANDOM_SEED)
 
-OUTPUT = "data/generated/products.csv"
+OUTPUT = Config.PRODUCTS_FILE
+categories = pd.read_csv(Config.CATEGORIES_FILE)
+brands = pd.read_csv(Config.BRANDS_FILE)
 
-# --------------------------------------------------
-# Load master data
-# --------------------------------------------------
 
-categories = pd.read_csv("data/generated/categories.csv")
-brands = pd.read_csv("data/generated/brands.csv")
 
 # --------------------------------------------------
 # Product templates

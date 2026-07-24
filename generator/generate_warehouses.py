@@ -5,7 +5,7 @@ from config import Config
 
 random.seed(Config.RANDOM_SEED)
 
-OUTPUT = "data/generated/warehouses.csv"
+OUTPUT = Config.WAREHOUSES_FILE
 
 WAREHOUSE_LOCATIONS = [
     ("Chennai", "Tamil Nadu"),

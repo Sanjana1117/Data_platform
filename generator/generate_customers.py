@@ -9,7 +9,7 @@ fake = Faker("en_IN")
 random.seed(Config.RANDOM_SEED)
 Faker.seed(Config.RANDOM_SEED)
 
-OUTPUT = "data/generated/customers.csv"
+OUTPUT = Config.CUSTOMERS_FILE
 
 # -------------------------------------------------
 # Indian Locations

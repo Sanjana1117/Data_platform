@@ -1,6 +1,8 @@
 import pandas as pd
+from config import Config
 
-OUTPUT = "data/generated/brands.csv"
+OUTPUT = Config.BRANDS_FILE
+
 
 brands = [
 ("Apple","USA",1976),

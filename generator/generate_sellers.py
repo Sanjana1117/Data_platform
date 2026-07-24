@@ -8,7 +8,7 @@ fake = Faker("en_IN")
 random.seed(Config.RANDOM_SEED)
 Faker.seed(Config.RANDOM_SEED)
 
-OUTPUT = "data/generated/sellers.csv"
+OUTPUT = Config.SELLERS_FILE
 
 # --------------------------------------------------
 # Company Name Components

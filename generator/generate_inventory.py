@@ -1,23 +1,22 @@
 import random
+from datetime import datetime
+
 import pandas as pd
 
 from config import Config
 
 random.seed(Config.RANDOM_SEED)
 
-OUTPUT = "data/generated/warehouse_inventory.csv"
+OUTPUT = Config.WAREHOUSE_INVENTORY_FILE
 
-seller_products = pd.read_csv(
-    "data/generated/seller_products.csv"
-)
-
-warehouses = pd.read_csv(
-    "data/generated/warehouses.csv"
-)
+seller_products = pd.read_csv(Config.SELLER_PRODUCTS_FILE)
+warehouses = pd.read_csv(Config.WAREHOUSES_FILE)
 
 inventory = []
 
 used = set()
+
+warehouse_inventory_id = 1
 
 for _, row in seller_products.iterrows():
 
@@ -26,12 +25,17 @@ for _, row in seller_products.iterrows():
         Config.WAREHOUSES_PER_SELLER_PRODUCT[1]
     )
 
-    selected = warehouses.sample(warehouse_count)
-
     remaining_stock = random.randint(
         Config.MIN_STOCK,
         Config.MAX_STOCK
     )
+
+    warehouse_count = min(
+        warehouse_count,
+        remaining_stock
+    )
+
+    selected = warehouses.sample(warehouse_count)
 
     for i, (_, warehouse) in enumerate(selected.iterrows()):
 
@@ -41,21 +45,20 @@ for _, row in seller_products.iterrows():
 
         else:
 
+            warehouses_left = warehouse_count - i - 1
+
+            max_stock = remaining_stock - warehouses_left
+
             stock = random.randint(
                 1,
-                remaining_stock
+                max_stock
             )
 
             remaining_stock -= stock
 
         key = (
-
             warehouse["warehouse_id"],
-
-            row["seller_id"],
-
-            row["product_id"]
-
+            row["seller_product_id"]
         )
 
         if key in used:
@@ -65,19 +68,26 @@ for _, row in seller_products.iterrows():
 
         inventory.append({
 
+            "warehouse_inventory_id": warehouse_inventory_id,
+
             "warehouse_id": warehouse["warehouse_id"],
 
-            "seller_id": row["seller_id"],
-
-            "product_id": row["product_id"],
+            "seller_product_id": row["seller_product_id"],
 
             "stock_quantity": stock,
 
-            "last_updated": "2026-07-24"
+            "last_updated": datetime.now().strftime("%Y-%m-%d")
 
         })
 
+        warehouse_inventory_id += 1
+
 df = pd.DataFrame(inventory)
+
+df.sort_values(
+    ["warehouse_id", "seller_product_id"],
+    inplace=True
+)
 
 df.to_csv(
     OUTPUT,
@@ -86,5 +96,4 @@ df.to_csv(
 
 print(df.head())
 
-print(f"\nGenerated {len(df)} inventory records.")
-
+print(f"\nGenerated {len(df)} warehouse inventory records.")

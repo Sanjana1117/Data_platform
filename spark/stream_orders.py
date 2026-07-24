@@ -84,7 +84,6 @@ def write_to_postgres(batch_df, batch_id):
     print("Rows received:", row_count)
     print(f"Writing batch {batch_id} to PostgreSQL...")
 
-   
 
     (
         batch_df.write

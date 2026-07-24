@@ -24,9 +24,16 @@ class Config:
     SELLERS_FILE = GENERATED_DIR / "sellers.csv"
     SELLER_PRODUCTS_FILE = GENERATED_DIR / "seller_products.csv"
     WAREHOUSES_FILE = GENERATED_DIR / "warehouses.csv"
-    INVENTORY_FILE = GENERATED_DIR / "warehouse_inventory.csv"
+    WAREHOUSE_INVENTORY_FILE = GENERATED_DIR / "warehouse_inventory.csv"
     CUSTOMERS_FILE = GENERATED_DIR / "customers.csv"
     RETURN_REASONS_FILE = GENERATED_DIR / "return_reasons.csv"
+    # Transaction Data
+    ORDERS_FILE = GENERATED_DIR / "orders.csv"
+    ORDER_ITEMS_FILE = GENERATED_DIR / "order_items.csv"
+    PAYMENTS_FILE = GENERATED_DIR / "payments.csv"
+    SHIPMENTS_FILE = GENERATED_DIR / "shipments.csv"
+    RETURNS_FILE = GENERATED_DIR / "returns.csv"
+    REVIEWS_FILE = GENERATED_DIR / "reviews.csv"
 
     # ==========================================
     # Dataset Sizes
