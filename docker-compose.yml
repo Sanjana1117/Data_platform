@@ -6,7 +6,7 @@ services:
 
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: sanjana11
       POSTGRES_DB: enterprise_db
 
     ports:
@@ -68,6 +68,7 @@ services:
       PATH: /opt/spark/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
       HOME: /tmp
       IVY_HOME: /tmp/.ivy2
+      PYTHONPATH: /opt/spark-apps
 
     ports:
       - "4040:4040"
