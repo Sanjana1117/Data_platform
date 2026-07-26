@@ -1,51 +1,91 @@
-from pyspark.sql.functions import col, current_timestamp
+from pyspark.sql.functions import col, lit, when
+
 
 def validate_orders(df):
 
-    return df.filter(
+    validated_df = (
+        df.withColumn(
+            "reason",
+            when(col("order_id").isNull(), "INVALID_ORDER_ID")
 
-        col("order_id").isNotNull() &
-        col("customer_id").isNotNull() &
-        (col("customer_id") > 0) &
+            .when(
+                col("customer_id").isNull() |
+                (col("customer_id") <= 0),
+                "INVALID_CUSTOMER_ID"
+            )
 
-        col("seller_product_id").isNotNull() &
-        (col("seller_product_id") > 0) &
+            .when(
+                col("seller_product_id").isNull() |
+                (col("seller_product_id") <= 0),
+                "INVALID_SELLER_PRODUCT_ID"
+            )
 
-        col("warehouse_inventory_id").isNotNull() &
-        (col("warehouse_inventory_id") > 0) &
+            .when(
+                col("warehouse_inventory_id").isNull() |
+                (col("warehouse_inventory_id") <= 0),
+                "INVALID_WAREHOUSE_ID"
+            )
 
-        col("quantity").isNotNull() &
-        (col("quantity") > 0) &
+            .when(
+                col("quantity").isNull() |
+                (col("quantity") <= 0),
+                "INVALID_QUANTITY"
+            )
 
-        col("selling_price").isNotNull() &
-        (col("selling_price") > 0) &
+            .when(
+                col("selling_price").isNull() |
+                (col("selling_price") <= 0),
+                "INVALID_SELLING_PRICE"
+            )
 
-        col("amount").isNotNull() &
-        (col("amount") > 0) &
+            .when(
+                col("amount").isNull() |
+                (col("amount") <= 0),
+                "INVALID_AMOUNT"
+            )
 
-        col("timestamp").isNotNull() &
-        #(col("timestamp") <= current_timestamp()) &
+            .when(
+                col("timestamp").isNull(),
+                "INVALID_TIMESTAMP"
+            )
 
-        col("status").isin(
-            "PLACED",
-            "SHIPPED",
-            "DELIVERED",
-            "CANCELLED"
-        ) &
+            .when(
+                ~col("status").isin(
+                    "PLACED",
+                    "SHIPPED",
+                    "DELIVERED",
+                    "CANCELLED"
+                ),
+                "INVALID_STATUS"
+            )
 
-        col("payment_status").isin(
-            "PAID",
-            "PENDING",
-            "REFUNDED"
-        ) &
+            .when(
+                ~col("payment_status").isin(
+                    "PAID",
+                    "PENDING",
+                    "REFUNDED"
+                ),
+                "INVALID_PAYMENT_STATUS"
+            )
 
-        ~(
-            (col("status") == "CANCELLED") &
-            (col("payment_status") == "PAID")
-        ) &
+            .when(
+                (col("status") == "CANCELLED") &
+                (col("payment_status") == "PAID"),
+                "INVALID_STATUS_PAYMENT_COMBINATION"
+            )
 
-        ~(
-            (col("status") == "PLACED") &
-            (col("payment_status") == "REFUNDED")
+            .when(
+                (col("status") == "PLACED") &
+                (col("payment_status") == "REFUNDED"),
+                "INVALID_STATUS_PAYMENT_COMBINATION"
+            )
+
+            .otherwise(lit(None))
         )
     )
+
+    valid_orders = validated_df.filter(col("reason").isNull())
+
+    invalid_orders = validated_df.filter(col("reason").isNotNull())
+
+    return valid_orders, invalid_orders

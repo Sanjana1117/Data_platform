@@ -4,8 +4,7 @@ from pyspark.sql.types import *
 from spark.schemas import ORDER_EVENT_SCHEMA
 from spark.validation import validate_orders
 from spark.postgres_writer import write_to_postgres
-from spark.enrichment import load_master_data
-
+from spark.enrichment import load_master_data, enrich_orders
 
 spark = (
     SparkSession.builder
@@ -48,47 +47,49 @@ parsed_df = (
       .withColumn("timestamp", to_timestamp(col("timestamp")))
 )
 
-valid_orders = validate_orders(parsed_df)
+#valid_orders, invalid_orders = validate_orders(parsed_df)
 
 # ==========================================
 # Start Streaming
 # ==========================================
 
-# query = (
-#     valid_orders.writeStream
-#     .foreachBatch(write_to_postgres)
-#     .outputMode("append")
-#     #.option("checkpointLocation", "/tmp/checkpoints/order_events")
-#     .start()
-# )
+def process_batch(batch_df, batch_id):
 
-# query.awaitTermination()
+    valid_df, invalid_df = validate_orders(batch_df)
 
+    enriched_df = enrich_orders(valid_df, master_data)
 
-# query = (
-#     df.selectExpr(
-#         "CAST(value AS STRING) as value",
-#         "topic",
-#         "partition",
-#         "offset"
-#     )
-#     .writeStream
-#     .format("console")
-#     .outputMode("append")
-#     .option("truncate", "false")
-#     .start()
-# )
+    write_to_postgres(enriched_df, invalid_df, batch_id)
 
-# query.awaitTermination()
+    write_to_postgres(
+        enriched_df,
+        invalid_df,
+        batch_id
+    )
+
 
 query = (
     parsed_df.writeStream
-    .format("console")
+    .foreachBatch(process_batch)
     .outputMode("append")
-    .option("truncate", False)
+    .option("checkpointLocation", "/tmp/checkpoints/order_events")
     .start()
 )
 
 query.awaitTermination()
+
+# query = (
+#     valid_orders.writeStream
+#     .foreachBatch(write_to_postgres)
+#     .outputMode("append")
+#     .option("checkpointLocation", "/tmp/checkpoints/order_events")
+#     .start()
+# )
+
+# query.awaitTermination()
+
+
+
+
 
 
