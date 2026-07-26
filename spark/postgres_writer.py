@@ -2,7 +2,7 @@
 # PostgreSQL Configuration
 # ==========================================
 
-JDBC_URL = "jdbc:postgresql://postgres:5432/postgres"
+JDBC_URL = "jdbc:postgresql://postgres:5432/enterprise_db"
 
 JDBC_OPTIONS = {
     "url": JDBC_URL,
@@ -16,24 +16,41 @@ JDBC_OPTIONS = {
 # Write Streams to PostgreSQL
 # ==========================================
 
-def write_to_postgres(enriched_df, invalid_df, batch_id):
+def write_to_postgres(raw_df, enriched_df, invalid_df, batch_id):
 
     print(f"\n========== Batch {batch_id} ==========")
 
+    raw_count = raw_df.count()
     enriched_count = enriched_df.count()
     invalid_count = invalid_df.count()
 
-    total = enriched_count + invalid_count
+    total = raw_count
 
     print(f"Total Events     : {total}")
-    print(f"✅ Valid Orders   : {enriched_count}")
-    print(f"❌ Invalid Orders : {invalid_count}")
+    print(f"Raw Events     : {raw_count}")
+    print(f"Valid Orders   : {enriched_count}")
+    print(f"Invalid Orders : {invalid_count}")
 
     if total > 0:
         print(f"Success Rate     : {(enriched_count / total) * 100:.2f}%")
 
     # --------------------------------------
-    # Enriched Valid Orders
+    # Raw Orders (Bronze Layer)
+    # --------------------------------------
+
+    if raw_count > 0:
+
+        raw_df.write \
+            .format("jdbc") \
+            .options(**JDBC_OPTIONS) \
+            .option("dbtable", "live_orders") \
+            .mode("append") \
+            .save()
+
+        print("live_orders updated")
+
+    # --------------------------------------
+    # Enriched Valid Orders (Silver Layer)
     # --------------------------------------
 
     if enriched_count > 0:
@@ -45,10 +62,10 @@ def write_to_postgres(enriched_df, invalid_df, batch_id):
             .mode("append") \
             .save()
 
-        print("✅ enriched_live_orders updated")
+        print(" enriched_live_orders updated")
 
     # --------------------------------------
-    # Invalid Orders (DLQ)
+    # Invalid Orders (Dead Letter Queue)
     # --------------------------------------
 
     if invalid_count > 0:
@@ -60,4 +77,4 @@ def write_to_postgres(enriched_df, invalid_df, batch_id):
             .mode("append") \
             .save()
 
-        print("✅ invalid_orders updated")
+        print("invalid_orders updated")

@@ -21,7 +21,7 @@ import psycopg2
 PG_CONFIG = {
     "host": os.getenv("PG_HOST", "localhost"),
     "port": os.getenv("PG_PORT", "5432"),
-    "dbname": os.getenv("PG_DB", "novacart"),
+    "dbname": os.getenv("PG_DB", "enterprise_db"),
     "user": os.getenv("PG_USER", "postgres"),
     "password": os.getenv("PG_PASSWORD", "sanjana11"),
 }

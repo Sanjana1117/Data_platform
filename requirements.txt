@@ -4,3 +4,5 @@ psycopg2-binary
 faker
 python-dotenv
 boto3
+numpy
+pandas

@@ -1,21 +1,42 @@
 from pyspark.sql import DataFrame
 
 
-def write_analytics_table(
-    df: DataFrame,
-    table_name: str,
+def write_analytics_tables(
+    sales_df: DataFrame,
+    category_df: DataFrame,
+    product_df: DataFrame,
+    seller_df: DataFrame,
+    customer_df: DataFrame,
+    warehouse_df: DataFrame,
+    brand_df: DataFrame,
+    data_quality_df: DataFrame,
     jdbc_url: str,
-    db_properties: dict
-) -> None:
+    connection_properties: dict,
+):
+    """
+    Write all analytics DataFrames to PostgreSQL.
+    """
 
-    (
-        df.write
-        .mode("overwrite")
-        .jdbc(
-            url=jdbc_url,
-            table=table_name,
-            properties=db_properties
+    analytics_tables = {
+        "analytics_sales": sales_df,
+        "analytics_category": category_df,
+        "analytics_product": product_df,
+        "analytics_seller": seller_df,
+        "analytics_customer": customer_df,
+        "analytics_warehouse": warehouse_df,
+        "analytics_brand": brand_df,
+        "analytics_data_quality": data_quality_df,
+    }
+
+    for table_name, dataframe in analytics_tables.items():
+        (
+            dataframe.write
+            .mode("overwrite")
+            .jdbc(
+                url=jdbc_url,
+                table=table_name,
+                properties=connection_properties,
+            )
         )
-    )
 
-    print(f"✓ {table_name} updated successfully")
+    print("All analytics tables updated successfully.")

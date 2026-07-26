@@ -142,12 +142,12 @@ def enrich_orders(valid_df, master_data):
 
             # Seller
             col("s.seller_name"),
-            col("s.seller_rating"),
+            col("s.seller_rating").cast("double").alias("seller_rating"),
 
             # Product
             col("p.product_name"),
             col("p.sku"),
-            col("p.weight_kg"),
+            col("p.weight_kg").cast("double").alias("weight_kg"),
 
             # Brand
             col("b.brand_name"),
